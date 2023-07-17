@@ -53,7 +53,7 @@ export default function DungeonExplore() {
   const [roomRoll, setRoomRoll] = useState(0);
   const [encounter, setEncounter] = useState('');
   const [wanderingMonster, setWanderingMonster] = useState('');
-  const [frequencyCounter, setFrequencyCounter] = useState(0);
+  const [frequencyCounter, setFrequencyCounter] = useState(1);
   const [treasure, setTreasure] = useState('');
   const [hazard, setHazard] = useState('');
   const [feature, setFeature] = useState('');
@@ -70,13 +70,13 @@ export default function DungeonExplore() {
 
   function getRoomType(roomRoll: number, dungeonType: string): string {
     const room = roomTypes.find(room => room.id == dungeonType)
-    // eslint-disable-next-line
     // @ts-ignore
     return room?.rolls[roomRoll.toString() as keyof typeof roomTypes]
 
   }
   const rollDice = () => {
-    setRoomRoll(rollDie(20));
+    const roomDieRoll = rollDie(20)
+    setRoomRoll(roomDieRoll);
     const encounterRoll = rollDie(10);
     const treasureRoll = rollDie(10);
     const hazardRoll = rollDie(10);
@@ -86,7 +86,7 @@ export default function DungeonExplore() {
     let hazardModifier = 0;
     let featureModifier = 0;
 
-    const roomType = getRoomType(roomRoll, getValues('dungeonType'))
+    const roomType = getRoomType(roomDieRoll, getValues('dungeonType'))
 
     setRoom(`You enter a room. ${roomType}`);
 
@@ -133,21 +133,25 @@ export default function DungeonExplore() {
     
 
 
-    setFrequencyCounter(frequencyCounter + 1);
-    if (monsterFrequency > 0 && monsterFrequency - frequencyCounter == 0) {
+    if (monsterFrequency > 0 && monsterFrequency - frequencyCounter <= 0) {
       if (rollDie(6) == 1) {
         setWanderingMonster('You encounter a wandering monster!');
       }
-      setFrequencyCounter(0);
+      setFrequencyCounter(1);
     }
     else {
+      setFrequencyCounter(frequencyCounter + 1);
       setWanderingMonster('');
     }
     if (monsterFrequency == 0) {
-      setFrequencyCounter(0);
+      setFrequencyCounter(1);
+      setWanderingMonster('');
     }
   }
 
+  function resetFrequencyCounter() {
+    setFrequencyCounter(monsterFrequency)
+  }
 
   return (
     <>
@@ -161,6 +165,7 @@ export default function DungeonExplore() {
           <FormLabel id="wandering-monster-frequency-label">Wandering Monster Frequency</FormLabel>
           <Select
           {...register("monsterFrequency")} 
+          onChange={resetFrequencyCounter}
     id="wandering-monster-frequency"
     labelId="wandering-monster-frequency-label"
           defaultValue={0}>
@@ -185,7 +190,7 @@ export default function DungeonExplore() {
         </FormControl>
       </Stack>
       </form>
-      <Button onClick={rollDice}>New Room contents</Button>
+      <Button onClick={rollDice}>Explore next room</Button>
       {room && <p>{room}</p>}
       {encounter && <p>{encounter}</p>}
       {treasure && <p>{treasure}</p>}
