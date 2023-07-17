@@ -1,3 +1,3 @@
 export default function Exits() {
-  return <div>Exits</div>;
+  return <div>find Exits</div>;
 }
