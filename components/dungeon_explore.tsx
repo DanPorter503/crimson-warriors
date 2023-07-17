@@ -71,6 +71,7 @@ export default function DungeonExplore() {
   function getRoomType(roomRoll: number, dungeonType: string): string {
     const room = roomTypes.find(room => room.id == dungeonType)
     // eslint-disable-next-line
+    // @ts-ignore
     return room?.rolls[roomRoll.toString() as keyof typeof roomTypes]
 
   }
